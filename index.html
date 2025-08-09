@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Colori Satisfactory</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    background-color: #2A2E35;
+    color: #ddd;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  header {
+    background-color: #5F668C;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 3rem;
+    color: #FA9549;
+  }
+  .subheader {
+  background-color: #5F668C;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #FA9549;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+  .container {
+    max-width: 960px;
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+  .search-box {
+    margin-bottom: 1rem;
+  }
+  input[type="search"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  input[type="search"]:focus {
+    box-shadow: 0 0 8px #FA9549;
+  }
+
+  h2.category {
+    margin-top: 2rem;
+    border-bottom: 2px solid #FA9549;
+    padding-bottom: 0.25rem;
+  }
+
+  h3.subcategory {
+    margin-top: 1.5rem;
+    color: #FA9549;
+    border-left: 5px solid #FA9549;
+    padding-left: 0.5rem;
+    font-weight: 600;
+  }
+
+  ul.color-list {
+    list-style: none;
+    padding-left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  ul.color-list li {
+    cursor: pointer;
+    padding: 0.6rem 0.8rem;
+    border-radius: 5px;
+    user-select: none;
+    box-shadow: 0 0 3px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #3B3F47;
+    transition: background-color 0.2s ease;
+  }
+  ul.color-list li:hover {
+    background-color: #FA9549;
+    color: #222;
+  }
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    border: 1px solid #555;
+    flex-shrink: 0;
+  }
+  .color-name {
+    flex-grow: 1;
+  }
+  .color-code {
+    font-family: monospace;
+    opacity: 0.7;
+  }
+
+  #copyMessage {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: #FA9549;
+    color: #222;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #copyMessage.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding: 1rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #888;
+  }
+</style>
+</head>
+<body>
+<header>Colori di Satisfactory</header>
+<div class="subheader">Clicca su un colore per copiarne il rispettivo codice!</div>
+<div class="container">
+  <div class="search-box">
+    <input type="search" id="searchInput" placeholder="Cerca colore..." aria-label="Cerca colore" />
+  </div>
+
+  <div id="colorsContainer"></div>
+</div>
+
+<div id="copyMessage">Codice copiato!</div>
+
+<footer>
+  Dataset colori creato da <strong>Vencam</strong>.<br />
+  Realizzato con ❤️ da <strong>Steph404</strong>
+</footer>
+
+<script>
+  //colori
+  const colors = [
+    // NERI
+    {name:"AI Limiter", code:"#060606", category:"black"},
+    {name:"Batteria", code:"#1B1C30", category:"black"},
+    {name:"Carbone", code:"#0B0B19", category:"black"},
+    {name:"Computer", code:"#1C1C1C", category:"black"},
+    {name:"Coke", code:"#030309", category:"black"},
+    {name:"Cella di Plutonio Incapsulata", code:"#191919", category:"black"},
+    {name:"Barra di Ferro", code:"#0D0D0F", category:"black"},
+    {name:"Petrolio", code:"#0A090F", category:"black"},
+    {name:"Gomma", code:"#202020", category:"black"},
+    {name:"Acciaio", code:"#0A090F", category:"black"},
+    {name:"Trave in Acciaio", code:"#0C0909", category:"black"},
+    {name:"Tubo in Acciaio", code:"#222020", category:"black"},
+
+    // BIANCHI & GRIGI
+    {name:"Rivestimento in Alluminio", code:"#C7C9CB", category:"whitegray"},
+    {name:"Lingotto di Alluminio", code:"#D2D3D4", category:"whitegray"},
+    {name:"Rottame di Alluminio", code:"#BCC0C9", category:"whitegray"},
+    {name:"Lastra di Alluminio", code:"#9EA0A2", category:"whitegray"},
+    {name:"Soluzione di Allumina", code:"#DDDEDF", category:"whitegray"},
+    {name:"Batteria", code:"#BCBBC4", category:"whitegray"},
+    {name:"Minerale di Caterium", code:"#A7AAB7", category:"whitegray"},
+    {name:"Cemento", code:"#EEEBEA", category:"whitegray"},
+    {name:"Gaselisk", code:"#B3B8BC", category:"whitegray"},
+    {name:"Dissipatore di Calore", code:"#B0B3B0", category:"whitegray"},
+    {name:"Telaio Modulare Pesante", code:"#191919", category:"black"},
+    {name:"Telaio Modulare Pesante", code:"#989FA9", category:"whitegray"},
+    {name:"Ferro", code:"#69717C", category:"whitegray"},
+    {name:"Lingotto di Ferro", code:"#989A9D", category:"whitegray"},
+    {name:"Minerale di Ferro", code:"#989FA9", category:"whitegray"},
+    {name:"Piastra di Ferro", code:"#BCBEC1", category:"whitegray"},
+    {name:"Acido Nitrico", code:"#F7FAD7", category:"whitegray"},
+    {name:"Pellet di Plutonio", code:"#5A5552", category:"whitegray"},
+    {name:"Quarzo Grezzo", code:"#767676", category:"whitegray"},
+    {name:"Piastra di Ferro Rinforzata", code:"#697082", category:"whitegray"},
+    {name:"Silice", code:"#D8DDE7", category:"whitegray"},
+    {name:"Statore", code:"#505054", category:"whitegray"},
+    {name:"Zolfo", code:"#867F7D", category:"whitegray"},
+
+    // ROSSI, GIALLI & MARRONI
+    {name:"Rottame di Alluminio", code:"#CA852C", category:"redyellowbrown", subcategory:"arancio"},
+    {name:"Bauxite", code:"#CD7660", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Minerale di Caterium", code:"#E2B148", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Lingotto di Caterium", code:"#CCA566", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Clusterisk", code:"#CC7C00", category:"redyellowbrown", subcategory:"arancio"},
+    {name:"Clusterisk", code:"#4B3131", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Computer", code:"#89552F", category:"redyellowbrown", subcategory:"marrone"},
+    {name:"Cemento", code:"#D3BEA4", category:"redyellowbrown", subcategory:"marrone"},
+    {name:"Lingotto di Rame", code:"#A56355", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Minerale di Rame", code:"#BD4C39", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Lastra di Rame", code:"#8C554D", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Oscillatore di Cristallo", code:"#E5B82A", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Trave Industriale Incapsulata", code:"#893F3F", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Cella di Plutonio Incapsulata", code:"#DDD839", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Ficsit", code:"#FA9549", category:"redyellowbrown", subcategory:"arancio"},
+    {name:"Carburante", code:"#D47615", category:"redyellowbrown", subcategory:"arancio"},
+    {name:"Telaio Modulare Fuso", code:"#FDB164", category:"redyellowbrown", subcategory:"arancio"},
+    {name:"Dissipatore di Calore", code:"#76402C", category:"redyellowbrown", subcategory:"marrone"},
+    {name:"Minerale di Ferro", code:"#8E5C5C", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Calcare", code:"#C8BFA7", category:"redyellowbrown", subcategory:"marrone"},
+    {name:"Nobelisk", code:"#901400", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Nobelisk", code:"#FFE500", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Uranio Non Fissile", code:"#E1D529", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Nukelisk", code:"#DAC500", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Barra di Carburante al Plutonio", code:"#E5D04A", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Filo Rapido", code:"#CDBD8B", category:"redyellowbrown", subcategory:"marrone"},
+    {name:"Gomma", code:"#D1B84F", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Trave in Acciaio", code:"#4B2323", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Tubo in Acciaio", code:"#6C3936", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Zolfo", code:"#FCDC48", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Acido Solforico", code:"#FFF03A", category:"redyellowbrown", subcategory:"giallo"},
+    {name:"Supercomputer", code:"#EEBA72", category:"redyellowbrown", subcategory:"arancio"},
+    {name:"Turbocarburante", code:"#A10000", category:"redyellowbrown", subcategory:"rosso"},
+    {name:"Cella di Uranio", code:"#D3B333", category:"redyellowbrown", subcategory:"giallo"},
+
+    // VERDI
+    {name:"Plutonio", code:"#457F35", category:"green"},
+    {name:"Miniera di Plutonio", code:"#1B3520", category:"green"},
+    {name:"Pellet di Plutonio", code:"#7F8E66", category:"green"},
+    {name:"BioCarburante", code:"#558D2F", category:"green"},
+    {name:"BioCarburante", code:"#3E541B", category:"green"},
+    {name:"Biossido di Carbonio", code:"#273B17", category:"green"},
+    {name:"Foglie", code:"#3C6E3C", category:"green"},
+    {name:"Serbatoio di Biocarburante", code:"#576E32", category:"green"},
+    {name:"Pianta", code:"#457F35", category:"green"},
+    {name:"Pianta", code:"#3B5F2B", category:"green"},
+  ];
+
+
+  const categories = {
+    black: { label: "Neri", subcategories: [] },
+    whitegray: { label: "Bianchi & Grigi", subcategories: [] },
+    redyellowbrown: { label: "Rossi, Gialli & Marroni", subcategories: ["rosso","giallo","arancio","marrone"] },
+    green: { label: "Verdi", subcategories: [] },
+  };
+
+
+  const subcategoryLabels = {
+    rosso: "Rosso",
+    giallo: "Giallo",
+    arancio: "Arancio",
+    marrone: "Marrone",
+  };
+
+  const colorsContainer = document.getElementById('colorsContainer');
+  const searchInput = document.getElementById('searchInput');
+  const copyMessage = document.getElementById('copyMessage');
+
+
+  function showCopyMessage() {
+    copyMessage.classList.add('visible');
+    setTimeout(() => {
+      copyMessage.classList.remove('visible');
+    }, 1500);
+  }
+
+
+  function createColorElement(color) {
+    const li = document.createElement('li');
+    li.tabIndex = 0;
+    li.setAttribute('role', 'button');
+    li.setAttribute('aria-label', `Copia codice colore ${color.name} ${color.code}`);
+    li.dataset.code = color.code;
+
+    const swatch = document.createElement('span');
+    swatch.className = 'color-swatch';
+    swatch.style.backgroundColor = color.code;
+
+    const name = document.createElement('span');
+    name.className = 'color-name';
+    name.textContent = color.name;
+
+    const code = document.createElement('span');
+    code.className = 'color-code';
+    code.textContent = color.code;
+
+    li.appendChild(swatch);
+    li.appendChild(name);
+    li.appendChild(code);
+
+    li.addEventListener('click', () => {
+      navigator.clipboard.writeText(color.code).then(() => {
+        showCopyMessage();
+      });
+    });
+    li.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        navigator.clipboard.writeText(color.code).then(() => {
+          showCopyMessage();
+        });
+      }
+    });
+
+    return li;
+  }
+
+
+  function renderColors(filter = '') {
+    colorsContainer.innerHTML = '';
+
+
+    const filterLower = filter.toLowerCase();
+
+
+    for (const catKey in categories) {
+      const category = categories[catKey];
+      const filteredColors = colors.filter(c => {
+        if(c.category !== catKey) return false;
+        if(filter && !(c.name.toLowerCase().includes(filterLower) || c.code.toLowerCase().includes(filterLower))) return false;
+        return true;
+      });
+      if(filteredColors.length === 0) continue;
+
+
+      const h2 = document.createElement('h2');
+      h2.className = 'category';
+      h2.textContent = category.label;
+      colorsContainer.appendChild(h2);
+
+
+      if(category.subcategories.length > 0) {
+        category.subcategories.forEach(subcatKey => {
+          const subColors = filteredColors.filter(c => c.subcategory === subcatKey);
+          if(subColors.length === 0) return;
+          const h3 = document.createElement('h3');
+          h3.className = 'subcategory';
+          h3.textContent = subcategoryLabels[subcatKey] || subcatKey;
+          colorsContainer.appendChild(h3);
+          const ul = document.createElement('ul');
+          ul.className = 'color-list';
+          subColors.forEach(color => {
+            ul.appendChild(createColorElement(color));
+          });
+          colorsContainer.appendChild(ul);
+        });
+
+       
+        const noSubColors = filteredColors.filter(c => !c.subcategory);
+        if(noSubColors.length > 0) {
+          const ul = document.createElement('ul');
+          ul.className = 'color-list';
+          noSubColors.forEach(color => {
+            ul.appendChild(createColorElement(color));
+          });
+          colorsContainer.appendChild(ul);
+        }
+      } else {
+        const ul = document.createElement('ul');
+        ul.className = 'color-list';
+        filteredColors.forEach(color => {
+          ul.appendChild(createColorElement(color));
+        });
+        colorsContainer.appendChild(ul);
+      }
+    }
+  }
+
+  renderColors();
+
+  searchInput.addEventListener('input', () => {
+    renderColors(searchInput.value.trim());
+  });
+</script>
+</body>
+</html>
